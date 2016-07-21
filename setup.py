@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+import site
 
 setup(
     name='sirius',
@@ -10,3 +11,5 @@ setup(
     packages=find_packages(),
     platforms='any'
 )
+
+print site.getsitepackages()
