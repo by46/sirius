@@ -11,3 +11,7 @@ def group(l, n):
 
 
 group_by_2 = partial(group, n=2)
+
+
+def parse_list(text):
+    return text.split(';')
