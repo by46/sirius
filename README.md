@@ -23,6 +23,9 @@ sudo pip --trusted-host scmesos06 install -i http://scmesos06:3141/simple sirius
 
 ```shell
 sirius -l
+# or
+sirius --list 
+
 ```
 
 执行完了之后， 你可以得到如下结果：
@@ -42,6 +45,9 @@ Available commands:
 如果你想查看Task的详细信息，可以执行以下命令查看：
 ```shell
 sirius -d docker_deploy
+# or
+sirius --display docker_deploy
+
 ```
 
 那么我们就会得到docker_deploy 任务的详细信息:
