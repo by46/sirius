@@ -1,8 +1,8 @@
 import sirius
-from sirius import deploy
-from sirius import image_name
+from sirius import docker_deploy
+from sirius import docker_image_name
 
-__all__ = ['deploy', 'image_name', 'usage', 'version']
+__all__ = ['docker_deploy', 'docker_image_name', 'usage', 'version']
 
 HELP_LINE = """
 Usage Example:
@@ -16,9 +16,17 @@ Usage Example:
 """
 
 
-def usage(cmd=None):
+def usage():
+    """help information
+
+    :return: None
+    """
     print(HELP_LINE)
 
 
 def version():
+    """version information
+
+    :return:
+    """
     print("Sirius Administrator Task Tool Version {0}".format(sirius.__version__))
