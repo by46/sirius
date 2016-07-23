@@ -1,9 +1,9 @@
 import sirius
 from sirius import docker_deploy
 from sirius import docker_image_name
-from sirius import build_image
+from sirius import docker_build_image
 
-__all__ = ['docker_deploy', 'docker_image_name', 'usage', 'version', 'build_image']
+__all__ = ['docker_deploy', 'docker_image_name', 'usage', 'version', 'docker_build_image']
 
 HELP_LINE = """
 Usage Example:

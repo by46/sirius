@@ -15,7 +15,7 @@ def docker_deploy(name, image, server=None, ports=None, volumes=None, env=None, 
 
     will create container when if container is not exists, otherwise update container
     Example:
-        sirius deploy:meerkat,meerkat:0.0.1,server=scdfis01,ports="3141;8080;8900;8081",env="DEBUG\=1;PATH\=2"
+        sirius docker_deploy:meerkat,meerkat:0.0.1,server=scdfis01,ports="3141;8080;8900;8081",env="DEBUG\=1;PATH\=2"
 
     :param name: container name
     :param image: image with tag, like: 'CentOS:7.0'
@@ -68,7 +68,7 @@ def docker_image_name(src='.'):
     parse matrix.json, and get image:tag
 
     Example:
-        IMAGE_NAME=$(sirius image_name | head -n 1)
+        IMAGE_NAME=$(sirius docker_image_name | head -n 1)
 
     :param src: the dir which container matrix.json, default is current work directory
     :return:
@@ -77,9 +77,10 @@ def docker_image_name(src='.'):
     print '{name}:{tag}'.format(name=settings.get('name'), tag=settings.get('tag', 'latest'))
 
 
-def build_image():
+def docker_build_image():
     """build a new image
-    Example sirius build image
+    Example:
+      sirius docker_build_image
 
     :return:
     """
