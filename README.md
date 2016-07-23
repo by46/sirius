@@ -63,8 +63,4 @@ Displaying detailed information for task 'docker_deploy':
     
     Arguments: name, image, server=None, ports=None, volumes=None, env=None, cmd='', hostname='sirius'
 
-
-Process finished with exit code 0
-
-
 ```
