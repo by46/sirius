@@ -20,7 +20,8 @@ def docker_deploy(name, image, server=None, ports=None, volumes=None, env=None, 
     :param name: container name
     :param image: image with tag, like: 'CentOS:7.0'
     :param server: which server will deploy the container, default:localhost
-    :param ports: just one port, will mapping <port>:80, also accept list with public, private pairs, like: public1;private1;public2;private2
+    :param ports: just one port, will mapping <port>:80, also accept list with public, private pairs,
+           like: public1;private1;public2;private2
     :param volumes: like: host_file1;container_file1;host_file2;container_file2
     :param env: var=10;DEBUG=true
     :param cmd: `class`:`str`
@@ -77,10 +78,11 @@ def docker_image_name(src='.'):
 
 
 def build_image():
-    """build a new iamge
+    """build a new image
 
     :return:
     """
     from fabric.api import local
-    local('docker run --rm -v ${WORKSPACE}:/home/matrix -v /usr/bin/docker:/usr/bin/docker -v /var/run/docker.sock:/var/run/docker.sock docker.neg/matrix:0.0.3 /usr/local/bin/matrix.sh')
+    local('docker run --rm -v ${WORKSPACE}:/home/matrix -v /usr/bin/docker:/usr/bin/docker '
+          '-v /var/run/docker.sock:/var/run/docker.sock docker.neg/matrix:0.0.3 /usr/local/bin/matrix.sh')
 
