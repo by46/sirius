@@ -7,4 +7,4 @@ from .docker import docker_image_name
 from .docker import build_image
 
 __version__ = "0.0.1"
-__all__ = ['deploy']
+__all__ = ['deploy', 'usage', 'build_image']
