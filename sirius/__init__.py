@@ -1,3 +1,5 @@
+"""Sirius Administrator Task Tool
+"""
 from __future__ import print_function
 
 from .docker import deploy
