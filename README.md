@@ -17,6 +17,8 @@ sudo pip --trusted-host scmesos06 install -i http://scmesos06:3141/simple sirius
 
 ### Usage
 我们在底层使用了[Fabric](http://docs.fabfile.org/en/1.11/index.html#)，所以我们借鉴Fabric的Task的概念。
+
+#### Available Task
 所以你可以执行下面有哪些可以用的Task：
 
 ```shell
@@ -34,6 +36,8 @@ Available commands:
     version            version information
         
 ```
+
+#### Task Description
 
 如果你想查看Task的详细信息，可以执行以下命令查看：
 ```shell
