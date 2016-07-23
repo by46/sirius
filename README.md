@@ -64,3 +64,14 @@ Displaying detailed information for task 'docker_deploy':
     Arguments: name, image, server=None, ports=None, volumes=None, env=None, cmd='', hostname='sirius'
 
 ```
+
+#### Execute Task
+我们得到了Task的详细信息之后，我们就可以根据描述信息来尝试使用， sirius采用这样 ``sirius COMMAND:param1,param2,param3=value3``的格式执行。
+例如我们我们要执行部署工作，我们就可以执行如下命令：
+
+```shell
+sirius docker_deploy:container_name,docker.neg/meerkat:0.0.1,scdfis00, ports=3141;8080
+
+```
+通过这个命令我们就在scdfis00的服务器上使用docker.neg/meerka:0.0.1的镜像启动了一个叫做container_name的容器，
+并把scdfis00 上的3141 tcp端口映射到了容器内部的8080tcp端口。当然还可以设置容器的卷、环境变量等，具体设置方式可以参照任务描述信息。
