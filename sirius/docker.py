@@ -15,7 +15,7 @@ def docker_deploy(name, image, server=None, ports=None, volumes=None, env=None, 
 
     will create container when if container is not exists, otherwise update container
     Example:
-        fab deploy:meerkat,meerkat:0.0.1,server=scdfis01,ports="3141;8080;8900;8081",env="DEBUG\=1;PATH\=2"
+        sirius deploy:meerkat,meerkat:0.0.1,server=scdfis01,ports="3141;8080;8900;8081",env="DEBUG\=1;PATH\=2"
 
     :param name: container name
     :param image: image with tag, like: 'CentOS:7.0'
@@ -79,7 +79,8 @@ def docker_image_name(src='.'):
 
 def build_image():
     """build a new image
-    Example
+    Example sirius build image
+
     :return:
     """
     from fabric.api import local
