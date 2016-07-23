@@ -3,7 +3,6 @@ from __future__ import print_function
 import io
 import os.path
 import re
-import sys
 from distutils.text_file import TextFile
 
 from setuptools import find_packages, setup
@@ -50,14 +49,24 @@ setup(
     install_requires=read_dependencies(),
     include_package_data=True,
     packages=find_packages(),
-    data_files=[("/etc/python", ['fabfile.py']),
-                ('/etc/profile.d', ['sirius.sh'])],
+    entry_points={
+        'console_scripts': [
+            'sirius = sirius.main:main'
+        ]
+    },
+    data_files=[("/etc/python", ['sirius_fabfile.py'])],
     classifiers=[
         'Programming Language :: Python',
         'Development Status :: 3 - Alpha',
         'Natural Language :: English',
         'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent'
+        'Operating System :: OS Independent',
+        'Topic :: Software Development',
+        'Topic :: Software Development :: Build Tools',
+        'Topic :: Software Development :: Libraries',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: System :: Software Distribution',
+        'Topic :: System :: Systems Administration',
     ]
 )
 
