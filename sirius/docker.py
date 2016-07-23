@@ -79,7 +79,7 @@ def docker_image_name(src='.'):
 
 def build_image():
     """build a new image
-
+    Example
     :return:
     """
     from fabric.api import local
