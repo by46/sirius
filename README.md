@@ -79,3 +79,5 @@ sirius docker_deploy:container_name,docker.neg/meerkat:0.0.1,scdfis00, ports=314
 ```
 通过这个命令我们就在scdfis00的服务器上使用docker.neg/meerka:0.0.1的镜像启动了一个叫做container_name的容器，
 并把scdfis00 上的3141 tcp端口映射到了容器内部的8080tcp端口。当然还可以设置容器的卷、环境变量等，具体设置方式可以参照任务描述信息。
+
+但是有一点必须注意的是， scdfis00上必须安装[dockerapi](http://trgit2/backend_framework/docker-manage-api)。
