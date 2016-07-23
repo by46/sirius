@@ -73,4 +73,14 @@ def image_name(src='.'):
     :return:
     """
     settings = load_settings(src)
-    print '{name}:{tag}'.format(name=settings.get('name'), tag=settings.get('tag', 'latest')),
+    print '{name}:{tag}'.format(name=settings.get('name'), tag=settings.get('tag', 'latest'))
+
+
+def build_image():
+    """build a new iamge
+
+    :return:
+    """
+    from fabric.api import local
+    local('docker run --rm -v ${WORKSPACE}:/home/matrix -v /usr/bin/docker:/usr/bin/docker -v /var/run/docker.sock:/var/run/docker.sock docker.neg/matrix:0.0.3 /usr/local/bin/matrix.sh')
+
