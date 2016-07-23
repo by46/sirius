@@ -10,8 +10,8 @@ from sirius.utils import group_by_2
 from sirius.utils import parse_list
 
 
-def deploy(name, image, server=None, ports=None, volumes=None, env=None, cmd="", hostname="sirius"):
-    """deploy image
+def docker_deploy(name, image, server=None, ports=None, volumes=None, env=None, cmd="", hostname="sirius"):
+    """deploy a docker image on some server
 
     will create container when if container is not exists, otherwise update container
     Example:
@@ -62,8 +62,8 @@ def load_settings(src):
         return json.load(f)
 
 
-def image_name(src='.'):
-    """get build image name
+def docker_image_name(src='.'):
+    """get building docker image name
     parse matrix.json, and get image:tag
 
     Example:

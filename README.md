@@ -1,5 +1,5 @@
 # Sirius
-Sirius 是用于Jenkins持续集成的常用功能集合，用于简单，快速的使用Jenkins实践持续集成。
+Sirius 是用于Jenkins持续集成的常用功能集合，便于简单、快速的使用Jenkins实践持续集成。
 
 ## Dependencies
 - Linux System
@@ -26,13 +26,45 @@ sirius -l
 执行完了之后， 你可以得到如下结果：
 
 ```shell
-Usage Example:
+Available commands:
 
-    sirius -l
-        print list of possible commands and exit
-    sirius -d NAME
-        print detailed info about command NAME
-    sirius COMMAND
-        execute COMMAND
+    docker_deploy      deploy a docker image on some server
+    docker_image_name  get building docker image name
+    usage              help information
+    version            version information
         
+```
+
+如果你想查看Task的详细信息，可以执行以下命令查看：
+```shell
+sirius -d docker_deploy
+```
+
+那么我们就会得到docker_deploy 任务的详细信息:
+
+```shell
+Displaying detailed information for task 'docker_deploy':
+
+    deploy a docker image on some server
+    
+        will create container when if container is not exists, otherwise update container
+        Example:
+            fab deploy:meerkat,meerkat:0.0.1,server=scdfis01,ports="3141;8080;8900;8081",env="DEBUG\=1;PATH\=2"
+    
+        :param name: container name
+        :param image: image with tag, like: 'CentOS:7.0'
+        :param server: which server will deploy the container, default:localhost
+        :param ports: just one port, will mapping <port>:80, also accept list with public, private pairs, like: public1;private1;public2;private2
+        :param volumes: like: host_file1;container_file1;host_file2;container_file2
+        :param env: var=10;DEBUG=true
+        :param cmd: `class`:`str`
+        :param hostname:
+        :return:
+    
+    Arguments: name, image, server=None, ports=None, volumes=None, env=None, cmd='', hostname='sirius'
+
+
+Process finished with exit code 0
+
+
 ```
