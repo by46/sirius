@@ -1,13 +1,19 @@
+from __future__ import print_function
 
 import httplib
 import json
-import os.path
+import os
+from distutils.version import LooseVersion
 
+import requests
+from fabric.api import local
 from negowl import ContainerNotFound
 from negowl import factory
 
 from sirius.utils import group_by_2
 from sirius.utils import parse_list
+
+DEIMOS = 'http://SCDFIS01:9200'
 
 
 def docker_deploy(name, image, server=None, ports=None, volumes=None, env=None, cmd="", hostname="sirius"):
@@ -74,17 +80,65 @@ def docker_image_name(src='.'):
     :return:
     """
     settings = load_settings(src)
-    print '{name}:{tag}'.format(name=settings.get('name'), tag=settings.get('tag', 'latest'))
+    print('{name}:{tag}'.format(name=settings.get('name'), tag=settings.get('tag', 'latest')))
 
 
-def docker_build_image():
+def docker_build_image(workspace=None):
     """build a new image
     Example:
-      sirius docker_build_image
+      sirius docker_build_image[:workspace]
 
+    :param workspace: the source code directory, default retrieve workspace from WORKSPACE ENV variable.
     :return:
     """
-    from fabric.api import local
-    local('docker run --rm -v ${WORKSPACE}:/home/matrix -v /usr/bin/docker:/usr/bin/docker '
-          '-v /var/run/docker.sock:/var/run/docker.sock docker.neg/matrix:0.0.3 /usr/local/bin/matrix.sh')
+    if not workspace:
+        workspace = os.environ.get('WORKSPACE', '.')
 
+    cmd = ('docker run --rm -v ${workspace}:/home/matrix -v /usr/bin/docker:/usr/bin/docker '
+           '-v /var/run/docker.sock:/var/run/docker.sock docker.neg/matrix:0.0.3 /usr/local/bin/matrix.sh')
+
+    local(cmd.format(workspace=workspace))
+
+
+def docker_new_build_no(project_slug=None):
+    """get new build no
+
+    it's used to build docker image
+    Example:
+        sirius docker_new_build_no:meerkat | head -n 1
+
+    :param project_slug: project name
+    :return:
+    """
+    url = '{0}/build/{1}'.format(DEIMOS, project_slug)
+    response = requests.post(url)
+    assert response.status_code == httplib.OK
+    obj = response.json()
+    print(obj['build_id'])
+    return obj['build_id']
+
+
+def docker_prepare_build(matrix_json=None):
+    """prepare build docker image
+
+    generate new docker image tag, and rewrite the matrix.json
+
+    :param matrix_json: the matrix.json file path, default './matrix.json'
+    :return:
+    """
+    if not matrix_json:
+        matrix_json = 'matrix.json'
+
+    if not os.path.isfile(matrix_json):
+        raise ValueError('matrix file is not exists, matrix_json={0}'.format(matrix_json))
+
+    with open(matrix_json, 'rb') as f:
+        obj = json.load(f)
+        project_slug = obj['name']
+        build_no = docker_new_build_no(project_slug)
+        tag = obj['tag']
+        version = LooseVersion(tag)
+        obj['tag'] = '.'.join(version.version[:3] + [build_no])
+
+    with open(matrix_json, 'wb') as f:
+        json.dump(obj)
