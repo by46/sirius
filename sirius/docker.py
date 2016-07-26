@@ -4,6 +4,8 @@ import httplib
 import json
 import os
 from distutils.version import LooseVersion
+from itertools import chain
+from itertools import imap
 
 import requests
 from fabric.api import local
@@ -94,7 +96,9 @@ def docker_build_image(workspace=None):
     if not workspace:
         workspace = os.environ.get('WORKSPACE', '.')
 
-    cmd = ('docker run --rm -v ${workspace}:/home/matrix -v /usr/bin/docker:/usr/bin/docker '
+    docker_prepare_build(workspace)
+
+    cmd = ('docker run --rm -v {workspace}:/home/matrix -v /usr/bin/docker:/usr/bin/docker '
            '-v /var/run/docker.sock:/var/run/docker.sock docker.neg/matrix:0.0.3 /usr/local/bin/matrix.sh')
 
     local(cmd.format(workspace=workspace))
@@ -123,11 +127,13 @@ def docker_prepare_build(matrix_json=None):
 
     generate new docker image tag, and rewrite the matrix.json
 
-    :param matrix_json: the matrix.json file path, default './matrix.json'
+    :param matrix_json: the matrix.json location, default './matrix.json'
     :return:
     """
     if not matrix_json:
-        matrix_json = 'matrix.json'
+        matrix_json = '.'
+
+    matrix_json = os.path.join(matrix_json, 'matrix.json')
 
     if not os.path.isfile(matrix_json):
         raise ValueError('matrix file is not exists, matrix_json={0}'.format(matrix_json))
@@ -135,10 +141,10 @@ def docker_prepare_build(matrix_json=None):
     with open(matrix_json, 'rb') as f:
         obj = json.load(f)
         project_slug = obj['name']
-        build_no = docker_new_build_no(project_slug)
+        build_no = 'build{0}'.format(docker_new_build_no(project_slug))
         tag = obj['tag']
         version = LooseVersion(tag)
-        obj['tag'] = '.'.join(version.version[:3] + [build_no])
+        obj['tag'] = '.'.join(imap(str, chain(version.version[:3], [build_no])))
 
     with open(matrix_json, 'wb') as f:
-        json.dump(obj)
+        json.dump(obj, f)
