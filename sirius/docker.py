@@ -85,23 +85,27 @@ def docker_image_name(src='.'):
     print('{name}:{tag}'.format(name=settings.get('name'), tag=settings.get('tag', 'latest')))
 
 
-def docker_build_image(workspace=None):
+def docker_build_image(workspace=None, matrix_version=None):
     """build a new image
     Example:
       sirius docker_build_image[:workspace]
 
     :param workspace: the source code directory, default retrieve workspace from WORKSPACE ENV variable.
+    :param matrix_version: the matrix version, default is the new tag
     :return:
     """
     if not workspace:
         workspace = os.environ.get('WORKSPACE', '.')
 
+    if not matrix_version:
+        matrix_version = '0.0.4'
+
     docker_prepare_build(workspace)
 
     cmd = ('docker run --rm -v {workspace}:/home/matrix -v /usr/bin/docker:/usr/bin/docker '
-           '-v /var/run/docker.sock:/var/run/docker.sock docker.neg/matrix:0.0.3 /usr/local/bin/matrix.sh')
+           '-v /var/run/docker.sock:/var/run/docker.sock docker.neg/matrix:{matrix} /usr/local/bin/matrix.sh')
 
-    local(cmd.format(workspace=workspace))
+    local(cmd.format(workspace=workspace, matrix=matrix_version))
 
 
 def docker_new_build_no(project_slug=None):
