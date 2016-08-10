@@ -53,8 +53,7 @@ def docker_deploy(name, image, server=None, ports=None, volumes=None, env=None, 
 
         container_volumes = []
         if volumes:
-            volumes = json.loads(volumes)
-            container_ports = [dict(containervolume=s, hostvolume=t) for s, t in group_by_2(parse_list(volumes))]
+            container_volumes = [dict(hostvolume=s, containervolume=t) for s, t in group_by_2(parse_list(volumes))]
         if env:
             env = parse_list(env)
 

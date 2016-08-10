@@ -69,22 +69,3 @@ setup(
         'Topic :: System :: Systems Administration',
     ]
 )
-
-# if sys.platform.startswith('linux'):
-#     import os.path
-#     import site
-#
-#     success = False
-#     name = "sirius"
-#     for p in site.getsitepackages():
-#         full_path = os.path.join(p, name, 'fabfile.py')
-#         print(full_path)
-#         if os.path.isfile(full_path):
-#             command = '#! /bin/sh\nalias sirius="fab --fabfile={0}"\n'.format(full_path)
-#             with open('/etc/profile.d/sirius.sh', 'wb') as f:
-#                 f.write(command)
-#             success = True
-#             break
-#
-#     if not success:
-#         raise Exception("Could not find site package")
