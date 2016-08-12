@@ -7,4 +7,4 @@ from .docker import docker_deploy
 from .docker import docker_image_name
 from .docker import docker_new_build_no
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"

@@ -9,6 +9,7 @@ from itertools import imap
 
 import requests
 from fabric.api import local
+from git import Repo
 from negowl import ContainerNotFound
 from negowl import factory
 
@@ -70,7 +71,7 @@ def load_settings(src):
         return json.load(f)
 
 
-def docker_image_name(src='.'):
+def docker_image_name(src='.', release=False):
     """get building docker image name
     parse matrix.json, and get image:tag
 
@@ -78,10 +79,13 @@ def docker_image_name(src='.'):
         IMAGE_NAME=$(sirius docker_image_name | head -n 1)
 
     :param src: the dir which container matrix.json, default is current work directory
+    :param release: generate release image name
     :return:
     """
     settings = load_settings(src)
-    print('{name}:{tag}'.format(name=settings.get('name'), tag=settings.get('tag', 'latest')))
+    name = settings.get('name')
+    tag = settings.get('release_tag', 'release1') if release else settings.get('tag', 'build1')
+    print('{name}:{tag}'.format(name=name, tag=tag))
 
 
 def docker_build_image(workspace=None, matrix_version=None):
@@ -125,29 +129,33 @@ def docker_new_build_no(project_slug=None):
     return obj['build_id']
 
 
-def docker_prepare_build(matrix_json=None):
+def docker_prepare_build(workspace="."):
     """prepare build docker image
 
     generate new docker image tag, and rewrite the matrix.json
 
-    :param matrix_json: the matrix.json location, default './matrix.json'
+    :param workspace: the matrix.json location, default './matrix.json'
     :return:
     """
-    if not matrix_json:
-        matrix_json = '.'
+    workspace = workspace or '.'
 
-    matrix_json = os.path.join(matrix_json, 'matrix.json')
+    matrix_json = os.path.join(workspace, 'matrix.json')
 
     if not os.path.isfile(matrix_json):
         raise ValueError('matrix file is not exists, matrix_json={0}'.format(matrix_json))
 
+    repo = Repo(workspace)
+    commit = str(repo.head.commit.hexsha[:5])
+
     with open(matrix_json, 'rb') as f:
         obj = json.load(f)
         project_slug = obj['name']
-        build_no = 'build{0}'.format(docker_new_build_no(project_slug))
+        build_no = docker_new_build_no(project_slug)
         tag = obj['tag']
         version = LooseVersion(tag)
-        obj['tag'] = '.'.join(imap(str, chain(version.version[:3], [build_no])))
+        obj['tag'] = '.'.join(imap(str, chain(version.version[:3], ['build{0}'.format(build_no)])))
+        obj['release_tag'] = '.'.join(
+            imap(str, chain(version.version[:3], ['release{0}.{1}'.format(build_no, commit)])))
 
     with open(matrix_json, 'wb') as f:
         json.dump(obj, f)
