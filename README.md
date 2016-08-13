@@ -11,7 +11,7 @@ Sirius 是用于Jenkins持续集成的常用功能集合，便于简单、快速
 sirius可以使用pip来快速安装，执行以下命令来快速安装sirius:
 
 ```shell
-sudo pip --trusted-host scmesos06 install -i http://scmesos06:3141/simple sirius
+sudo pip --trusted-host scmesos06 install -i http://scmesos06/simple sirius
 
 ```
 
