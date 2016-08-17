@@ -7,3 +7,10 @@ Welcome to Sirius's documentation!
 ==================================
 
 Sirius 是用于Jenkins持续集成的常用功能集合，便于简单、快速的使用Jenkins实践持续集成。
+
+.. toctree::
+   :maxdepth: 2
+
+   tutor
+   task
+   faqs

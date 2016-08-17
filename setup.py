@@ -55,7 +55,7 @@ setup(
             'sirius = sirius.main:main'
         ]
     },
-    data_files=[("/etc/python", ['sirius_fabfile.py'])],
+    data_files=[("", ['sirius_fabfile.py'])],
     classifiers=[
         'Programming Language :: Python',
         'Development Status :: 3 - Alpha',

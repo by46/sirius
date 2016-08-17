@@ -4,6 +4,7 @@
 
 ### Added
 - release tag for docker image
+- support for windows
 
 ## [0.0.1]
 

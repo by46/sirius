@@ -1,6 +1,10 @@
 # Sirius
 Sirius 是用于Jenkins持续集成的常用功能集合，便于简单、快速的使用Jenkins实践持续集成。
 
+## 文档
+
+详细文档请参考[这里](http://scmesos06/docs/dfis/sirius/)
+
 ## Dependencies
 - Linux System
 - Python 2.7+
