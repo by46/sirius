@@ -85,7 +85,9 @@ def docker_image_name(src='.', release=False):
     settings = load_settings(src)
     name = settings.get('name')
     tag = settings.get('release_tag', 'release1') if release else settings.get('tag', 'build1')
-    print('{name}:{tag}'.format(name=name, tag=tag))
+    image_name = '{name}:{tag}'.format(name=name, tag=tag)
+    print(image_name)
+    return image_name
 
 
 def docker_build_image(workspace=None, matrix_version=None):
@@ -159,3 +161,18 @@ def docker_prepare_build(workspace="."):
 
     with open(matrix_json, 'wb') as f:
         json.dump(obj, f)
+
+
+def docker_release(src='.'):
+    image_name = docker_image_name(src)
+    release_image_name = docker_image_name(src, release=True)
+
+    # Add new tag
+    cmd = 'docker tag -f {0} docker.neg/{1}'.format(image_name, release_image_name)
+    local(cmd)
+
+    cmd = 'docker push docker.neg/{0}'.format(release_image_name)
+    local(cmd)
+
+    cmd = 'docker rmi docker.neg/{0}'.format(release_image_name)
+    local(cmd)
