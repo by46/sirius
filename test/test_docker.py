@@ -84,7 +84,7 @@ class DockerTestCase(unittest.TestCase):
 
         # Assertion
 
-        docker_build_image()
+        docker_build_image(workspace='.')
         local.assert_called_with('docker run --rm -v .:/home/matrix '
                                  '-v /usr/bin/docker:/usr/bin/docker '
                                  '-v /var/run/docker.sock:/var/run/docker.sock '
