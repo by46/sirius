@@ -1,0 +1,1 @@
+DEIMOS = 'http://SCDFIS01:9200'

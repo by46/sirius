@@ -3,3 +3,5 @@ six
 fabric
 requests
 GitPython
+SimpleKit
+Mock

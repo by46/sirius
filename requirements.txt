@@ -3,3 +3,4 @@ six
 fabric
 requests
 GitPython
+SimpleKit

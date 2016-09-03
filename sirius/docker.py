@@ -10,13 +10,12 @@ from itertools import imap
 import requests
 from fabric.api import local
 from git import Repo
-from negowl import ContainerNotFound
-from negowl import factory
+from simplekit import ContainerNotFound
+from simplekit.docker import factory
 
-from sirius.utils import group_by_2
-from sirius.utils import parse_list
-
-DEIMOS = 'http://SCDFIS01:9200'
+from .setttings import DEIMOS
+from .utils import group_by_2
+from .utils import parse_list
 
 
 def docker_deploy(name, image, server=None, ports=None, volumes=None, env=None, cmd="", hostname="sirius"):
