@@ -54,7 +54,7 @@ def docker_dev_deploy(name,image,volumes=None,env=None,cmd="",hostname="sirius")
     code,result = client.get_container(name,True)
     if httplib.OK != code:
         raise Exception("get container information failure, code {0}, message: {1}".format(code, result))
-    port = result.NetworkSettings.Ports[0].HostPort
+    port = result.NetworkSettings.Ports[0][0].HostPort
     client = etcd.Client(host=server,port=4001)
     client.write("/haproxy-discover/services/%s/upstreams/%d" % (name,port),"%s:%d" % (server,port))
 
