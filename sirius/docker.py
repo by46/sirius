@@ -7,18 +7,19 @@ from distutils.version import LooseVersion
 from itertools import chain
 from itertools import imap
 
+import etcd
 import requests
 from fabric.api import local
 from git import Repo
 from simplekit import ContainerNotFound
 from simplekit.docker import factory
-import etcd
 
 from .setttings import DEIMOS
 from .utils import group_by_2
 from .utils import parse_list
 
-def docker_dev_deploy(name,image,volumes=None,env=None,cmd="",hostname="sirius"):
+
+def docker_dev_deploy(name, image, volumes=None, env=None, cmd="", hostname="sirius"):
     """deploy a docker image on dev server
 
         will create container when if container is not exists, otherwise update container
@@ -51,13 +52,12 @@ def docker_dev_deploy(name,image,volumes=None,env=None,cmd="",hostname="sirius")
         if httplib.OK != code:
             raise Exception("create container failure, code {0}, message: {1}".format(code, result))
 
-    code,result = client.get_container(name,True)
+    code, result = client.get_container(name, True)
     if httplib.OK != code:
         raise Exception("get container information failure, code {0}, message: {1}".format(code, result))
     port = result.NetworkSettings.Ports[0].HostPort
-    client = etcd.Client(host=server,port=4001)
-    client.write("/haproxy-discover/services/%s/upstreams/%d" % (name,port),"%s:%d" % (server,port))
-
+    client = etcd.Client(host=server, port=4001)
+    client.write("/haproxy-discover/services/%s/upstreams/%d" % (name, port), "%s:%d" % (server, port))
 
 
 def docker_deploy(name, image, server=None, ports=None, volumes=None, env=None, cmd="", hostname="sirius"):
