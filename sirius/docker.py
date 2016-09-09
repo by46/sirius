@@ -35,6 +35,11 @@ def docker_dev_deploy(name, image, volumes=None, env=None, cmd="", hostname="sir
         :return:
     """
     server = "scmesos02"
+    if env:
+        env = parse_list(env)
+        if "ENV=gqc" in env:
+            server = "10.1.24.134"
+
     client = factory.get(server)
     try:
         client.update_image_2(name, image)
@@ -42,8 +47,6 @@ def docker_dev_deploy(name, image, volumes=None, env=None, cmd="", hostname="sir
         container_volumes = []
         if volumes:
             container_volumes = [dict(hostvolume=s, containervolume=t) for s, t in group_by_2(parse_list(volumes))]
-        if env:
-            env = parse_list(env)
 
         code, result = client.create_container(name, image, hostname=hostname,
                                                ports=[dict(type='tcp', privateport=8080, publicport=0)],
