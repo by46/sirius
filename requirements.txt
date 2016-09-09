@@ -4,3 +4,4 @@ fabric
 requests
 GitPython
 SimpleKit
+python-etcd

@@ -12,10 +12,52 @@ from fabric.api import local
 from git import Repo
 from simplekit import ContainerNotFound
 from simplekit.docker import factory
+import etcd
 
 from .setttings import DEIMOS
 from .utils import group_by_2
 from .utils import parse_list
+
+def docker_dev_deploy(name,image,volumes=None,env=None,cmd="",hostname="sirius"):
+    """deploy a docker image on dev server
+
+        will create container when if container is not exists, otherwise update container
+        Example:
+            sirius docker_dev_deploy:meerkat,meerkat:0.0.1,env="DEBUG\=1;PATH\=2"
+
+        :param name: container name
+        :param image: image with tag, like: 'CentOS:7.0'
+        :param volumes: like: host_file1;container_file1;host_file2;container_file2
+        :param env: var=10;DEBUG=true
+        :param cmd: `class`:`str`
+        :param hostname:
+        :return:
+    """
+    server = "scmesos04"
+    client = factory.get(server)
+    try:
+        client.update_image_2(name, image)
+    except ContainerNotFound:
+        container_volumes = []
+        if volumes:
+            container_volumes = [dict(hostvolume=s, containervolume=t) for s, t in group_by_2(parse_list(volumes))]
+        if env:
+            env = parse_list(env)
+
+        code, result = client.create_container(name, image, hostname=hostname,
+                                               ports=[dict(type='tcp', privateport=8080, publicport=0)],
+                                               volumes=container_volumes, env=env,
+                                               command=cmd)
+        if httplib.OK != code:
+            raise Exception("create container failure, code {0}, message: {1}".format(code, result))
+
+    code,result = client.get_container(name,True)
+    if httplib.OK != code:
+        raise Exception("get container information failure, code {0}, message: {1}".format(code, result))
+    port = result.NetworkSettings.Ports[0].HostPort
+    client = etcd.Client(host="scmesos04",port=4005)
+    client.write("/haproxy-discover/services/%s/upstreams/%d" % (name,port),"%s:%d" % (server,port))
+
 
 
 def docker_deploy(name, image, server=None, ports=None, volumes=None, env=None, cmd="", hostname="sirius"):

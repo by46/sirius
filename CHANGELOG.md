@@ -3,6 +3,11 @@
 ## [Unrelease]
 
 ### Added
+- add docker dev deploy
+
+## [0.0.2]
+
+### Added
 - release tag for docker image
 - support for windows
 
@@ -13,3 +18,4 @@
 - retrieve image name
 - console entry point
 - add build docker command
+
