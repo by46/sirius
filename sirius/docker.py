@@ -58,8 +58,7 @@ def docker_dev_deploy(name, image, volumes=None, env=None, cmd="", hostname="sir
 
     port = result.NetworkSettings.Ports["8080/tcp"][0].HostPort
     client = etcd.Client(host=server,port=4001)
-    client.delete("/haproxy-discover/services/{0}/upstreams".format(name),dir=True)
-    client.write("/haproxy-discover/services/{0}/upstreams/{1}".format(name,port),"{0}:{1}".format(server,port))
+    client.write("/haproxy-discover/services/{0}/upstreams/{1}".format(name,server),"{0}:{1}".format(server,port))
 
 
 
