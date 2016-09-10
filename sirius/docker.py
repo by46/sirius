@@ -79,6 +79,7 @@ def docker_dev_deploy(name, image,replicas=1, volumes=None, env=None, cmd="", ho
             index = upstream.key[-1:]
             if index and int(index) > replicas:
                 etcdClient.delete(upstream.key)
+                client.delete_container("{0}.{1}".format(projectName,int(index)))
 
 def docker_deploy(name, image, server=None, ports=None, volumes=None, env=None, cmd="", hostname="sirius"):
     """deploy a docker image on some server

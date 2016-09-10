@@ -26,16 +26,18 @@ class DockerTestCase(unittest.TestCase):
 
     @patch.object(Docker,'update_image_2')
     @patch.object(Docker,'get_container')
+    @patch.object(Docker, 'delete_container')
     @patch.object(Client,'write')
     @patch.object(Client,'get')
     @patch.object(Client, 'delete')
-    def test_dev_deploy_docker_replicas_more_than_one(self,delete,get,write,get_container,update_image):
+    def test_dev_deploy_docker_scale(self,delete,get,write,delete_container,get_container,update_image):
         name = 'StubDemo'
         image = 'docker.neg/demo'
         get.return_value = EtcdResult(node={u'nodes':[{u'key':u'/upstreams/StubDemo.1'},{u'key':u'/upstreams/StubDemo.2'}],u'dir':True})
         get_container.return_value = 200,objson.loads('{"NetworkSettings":{"Ports":{"8080/tcp":[{"HostPort":"80"}]}}}')
         docker_dev_deploy(name, image)
         delete.assert_called_with('/upstreams/StubDemo.2')
+        delete_container.assert_called_with('StubDemo.2')
         write.assert_called_with('/haproxy-discover/services/StubDemo/upstreams/StubDemo.1', 'scmesos02:80')
         update_image.assert_called_with('StubDemo.1', image)
 
