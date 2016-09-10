@@ -19,7 +19,7 @@ from .utils import group_by_2
 from .utils import parse_list
 
 
-def docker_dev_deploy(name, image, volumes=None, env=None, cmd="", hostname="sirius"):
+def docker_dev_deploy(name, image,replicas=1, volumes=None, env=None, cmd="", hostname="sirius"):
     """deploy a docker image on dev server
 
         will create container when if container is not exists, otherwise update container
@@ -28,12 +28,17 @@ def docker_dev_deploy(name, image, volumes=None, env=None, cmd="", hostname="sir
 
         :param name: container name
         :param image: image with tag, like: 'CentOS:7.0'
+        :param replicas: container replicas
         :param volumes: like: host_file1;container_file1;host_file2;container_file2
         :param env: var=10;DEBUG=true
         :param cmd: `class`:`str`
         :param hostname:
         :return:
     """
+    projectName = name
+    if replicas <= 0:
+        raise Exception("replicas must more than 0")
+
     server = "scmesos02"
     if env:
         env = parse_list(env)
@@ -41,29 +46,38 @@ def docker_dev_deploy(name, image, volumes=None, env=None, cmd="", hostname="sir
             server = "10.1.24.134"
 
     client = factory.get(server)
-    try:
-        client.update_image_2(name, image)
-    except ContainerNotFound:
-        container_volumes = []
-        if volumes:
-            container_volumes = [dict(hostvolume=s, containervolume=t) for s, t in group_by_2(parse_list(volumes))]
+    etcdClient = Client(host=server, port=4001)
 
-        code, result = client.create_container(name, image, hostname=hostname,
-                                               ports=[dict(type='tcp', privateport=8080, publicport=0)],
-                                               volumes=container_volumes, env=env,
-                                               command=cmd)
+    for i in xrange(replicas):
+        name = "{0}.{1}".format(name,i + 1)
+        try:
+            client.update_image_2(name, image)
+        except ContainerNotFound:
+            container_volumes = []
+            if volumes:
+                container_volumes = [dict(hostvolume=s, containervolume=t) for s, t in group_by_2(parse_list(volumes))]
+
+            code, result = client.create_container(name, image, hostname=hostname,
+                                                   ports=[dict(type='tcp', privateport=8080, publicport=0)],
+                                                   volumes=container_volumes, env=env,
+                                                   command=cmd)
+            if httplib.OK != code:
+                raise Exception("create container failure, code {0}, message: {1}".format(code, result))
+
+        code, result = client.get_container(name, True)
         if httplib.OK != code:
-            raise Exception("create container failure, code {0}, message: {1}".format(code, result))
+            raise Exception("get container information failure, code {0}, message: {1}".format(code, result))
 
-    code, result = client.get_container(name, True)
-    if httplib.OK != code:
-        raise Exception("get container information failure, code {0}, message: {1}".format(code, result))
+        port = result.NetworkSettings.Ports["8080/tcp"][0].HostPort
+        etcdClient.write("/haproxy-discover/services/{0}/upstreams/{1}".format(projectName,name),"{0}:{1}".format(server,port))
 
-    port = result.NetworkSettings.Ports["8080/tcp"][0].HostPort
-    etcdClient = Client(host=server,port=4001)
-    etcdClient.write("/haproxy-discover/services/{0}/upstreams/{1}".format(name,server),"{0}:{1}".format(server,port))
+    upstreams = etcdClient.get("/haproxy-discover/services/{0}/upstreams".format(projectName))
 
-
+    for upstream in upstreams.children:
+        if isinstance(upstream.key,unicode):
+            index = upstream.key[-1:]
+            if index and int(index) > replicas:
+                etcdClient.delete(upstream.key)
 
 def docker_deploy(name, image, server=None, ports=None, volumes=None, env=None, cmd="", hostname="sirius"):
     """deploy a docker image on some server

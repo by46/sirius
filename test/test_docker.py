@@ -4,6 +4,7 @@ import unittest
 
 import requests
 from etcd import Client
+from etcd import EtcdResult
 from mock import call
 from mock import mock_open
 from mock import patch
@@ -19,27 +20,50 @@ from sirius.docker import docker_dev_deploy
 
 
 class DockerTestCase(unittest.TestCase):
+
+    def test_dev_deploy_docker_replicas_exception(self):
+        self.assertRaises(Exception, docker_dev_deploy, "", "", 0)
+
     @patch.object(Docker,'update_image_2')
     @patch.object(Docker,'get_container')
     @patch.object(Client,'write')
-    def test_dev_deploy_docker(self,write,get_container,update_image):
+    @patch.object(Client,'get')
+    @patch.object(Client, 'delete')
+    def test_dev_deploy_docker_replicas_more_than_one(self,delete,get,write,get_container,update_image):
         name = 'StubDemo'
         image = 'docker.neg/demo'
+        get.return_value = EtcdResult(node={u'nodes':[{u'key':u'/upstreams/StubDemo.1'},{u'key':u'/upstreams/StubDemo.2'}],u'dir':True})
         get_container.return_value = 200,objson.loads('{"NetworkSettings":{"Ports":{"8080/tcp":[{"HostPort":"80"}]}}}')
         docker_dev_deploy(name, image)
-        write.assert_called_with('/haproxy-discover/services/StubDemo/upstreams/scmesos02', 'scmesos02:80')
-        update_image.assert_called_with(name, image)
+        delete.assert_called_with('/upstreams/StubDemo.2')
+        write.assert_called_with('/haproxy-discover/services/StubDemo/upstreams/StubDemo.1', 'scmesos02:80')
+        update_image.assert_called_with('StubDemo.1', image)
+
+    @patch.object(Docker,'update_image_2')
+    @patch.object(Docker,'get_container')
+    @patch.object(Client,'write')
+    @patch.object(Client,'get')
+    def test_dev_deploy_docker(self,get,write,get_container,update_image):
+        name = 'StubDemo'
+        image = 'docker.neg/demo'
+        get.return_value = EtcdResult(node=[])
+        get_container.return_value = 200,objson.loads('{"NetworkSettings":{"Ports":{"8080/tcp":[{"HostPort":"80"}]}}}')
+        docker_dev_deploy(name, image)
+        write.assert_called_with('/haproxy-discover/services/StubDemo/upstreams/StubDemo.1', 'scmesos02:80')
+        update_image.assert_called_with('StubDemo.1', image)
 
     @patch.object(Docker, 'update_image_2')
     @patch.object(Docker, 'get_container')
     @patch.object(Client, 'write')
-    def test_dev_deploy_docker_gqc(self, write, get_container, update_image):
+    @patch.object(Client,'get')
+    def test_dev_deploy_docker_gqc(self, get, write, get_container, update_image):
         name = 'StubDemo'
         image = 'docker.neg/demo'
+        get.return_value = EtcdResult(node=[])
         get_container.return_value = 200, objson.loads('{"NetworkSettings":{"Ports":{"8080/tcp":[{"HostPort":"80"}]}}}')
         docker_dev_deploy(name, image,env="ENV=gqc")
-        write.assert_called_with('/haproxy-discover/services/StubDemo/upstreams/10.1.24.134', '10.1.24.134:80')
-        update_image.assert_called_with(name, image)
+        write.assert_called_with('/haproxy-discover/services/StubDemo/upstreams/StubDemo.1', '10.1.24.134:80')
+        update_image.assert_called_with('StubDemo.1', image)
 
     @patch.object(Docker,'update_image_2')
     @patch.object(Docker,'get_container')
@@ -48,23 +72,25 @@ class DockerTestCase(unittest.TestCase):
         image = 'docker.neg/demo'
         get_container.return_value = 500,None
         self.assertRaises(Exception, docker_dev_deploy, name, image)
-        update_image.assert_called_with(name, image)
+        update_image.assert_called_with('StubDemo.1', image)
 
     @patch.object(Docker, 'create_container')
     @patch.object(Docker, 'update_image_2')
     @patch.object(Docker, 'get_container')
     @patch.object(Client, 'write')
-    def test_dev_deploy_docker_create_container(self,write,get_container, update_image,create_container):
+    @patch.object(Client,'get')
+    def test_dev_deploy_docker_create_container(self,get,write,get_container, update_image,create_container):
         name = 'StubDemo'
         image = 'docker.neg/demo'
         volumes = "host_file1;container_file1;host_file2;container_file2"
+        get.return_value = EtcdResult(node=[])
         update_image.side_effect = ContainerNotFound
         get_container.return_value = 200, objson.loads('{"NetworkSettings":{"Ports":{"8080/tcp":[{"HostPort":"80"}]}}}')
         create_container.return_value = 200,None
         docker_dev_deploy(name, image,volumes=volumes)
-        write.assert_called_with('/haproxy-discover/services/StubDemo/upstreams/scmesos02', 'scmesos02:80')
-        update_image.assert_called_with(name, image)
-        create_container.assert_called_with(name, image, hostname='sirius', command='',
+        write.assert_called_with('/haproxy-discover/services/StubDemo/upstreams/StubDemo.1', 'scmesos02:80')
+        update_image.assert_called_with('StubDemo.1', image)
+        create_container.assert_called_with("StubDemo.1", image, hostname='sirius', command='',
                                             env=None,ports=[{'publicport':0,'type':'tcp','privateport':8080}],
                                             volumes=[{'containervolume': 'container_file1', 'hostvolume': 'host_file1'},
                                                      {'containervolume': 'container_file2',
@@ -79,8 +105,8 @@ class DockerTestCase(unittest.TestCase):
         update_image.side_effect = ContainerNotFound
         create_container.return_value = (httplib.INTERNAL_SERVER_ERROR, None)
         self.assertRaises(Exception, docker_dev_deploy, name, image, volumes=volumes)
-        update_image.assert_called_with(name, image)
-        create_container.assert_called_with(name, image, hostname='sirius', command='',
+        update_image.assert_called_with("StubDemo.1", image)
+        create_container.assert_called_with("StubDemo.1", image, hostname='sirius', command='',
                                             env=None,ports=[{'publicport':0,'type':'tcp','privateport':8080}],
                                             volumes=[{'containervolume': 'container_file1', 'hostvolume': 'host_file1'},
                                                      {'containervolume': 'container_file2',
