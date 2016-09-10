@@ -36,6 +36,7 @@ def docker_dev_deploy(name, image,replicas=1, volumes=None, env=None, cmd="", ho
         :return:
     """
     projectName = name
+    replicas = int(replicas)
     if replicas <= 0:
         raise Exception("replicas must more than 0")
 
