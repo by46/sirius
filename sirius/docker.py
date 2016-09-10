@@ -50,7 +50,7 @@ def docker_dev_deploy(name, image,replicas=1, volumes=None, env=None, cmd="", ho
     etcdClient = Client(host=server, port=4001)
 
     for i in xrange(replicas):
-        name = "{0}.{1}".format(name,i + 1)
+        name = "{0}.{1}".format(projectName,i + 1)
         try:
             client.update_image_2(name, image)
         except ContainerNotFound:
