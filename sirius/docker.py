@@ -19,6 +19,37 @@ from .utils import group_by_2
 from .utils import parse_list
 
 
+def docker_dfis_prd_deploy(name, image,replicas=5, volumes=None, env=None, cmd="", hostname="sirius",servers=None):
+    """deploy a docker image on dfis prd server
+
+        will create container when if container is not exists, otherwise update container
+        Example:
+            sirius docker_dfis_prd_deploy:meerkat,meerkat:0.0.1,env="DEBUG\=1;PATH\=2"
+
+        :param name: container name
+        :param image: image with tag, like: 'CentOS:7.0'
+        :param replicas: container replicas
+        :param volumes: like: host_file1;container_file1;host_file2;container_file2
+        :param env: var=10;DEBUG=true
+        :param cmd: `class`:`str`
+        :param hostname:
+        :param servers: dfis prd servers
+        :return:
+    """
+
+    if servers is None:
+        servers = ["s7dfis06","s7dfis07","s7dfis08","s7dfis09","s7dfis10","s7dfis11","s7dfis12","s7dfis13"]
+
+    projectName = name
+    replicas = int(replicas)
+    if replicas <= 0:
+        raise Exception("replicas must more than 0")
+
+    if env:
+        env = parse_list(env)
+
+    __deploy(projectName, name, image, replicas, volumes, env, cmd, hostname, servers,etcdPort=4007)
+
 def docker_dev_deploy(name, image,replicas=1, volumes=None, env=None, cmd="", hostname="sirius"):
     """deploy a docker image on dev server
 
@@ -46,40 +77,7 @@ def docker_dev_deploy(name, image,replicas=1, volumes=None, env=None, cmd="", ho
         if "ENV=gqc" in env:
             server = "10.1.24.134"
 
-    client = factory.get(server)
-    etcdClient = Client(host=server, port=4001)
-
-    for i in xrange(replicas):
-        name = "{0}.{1}".format(projectName,i + 1)
-        try:
-            client.update_image_2(name, image)
-        except ContainerNotFound:
-            container_volumes = []
-            if volumes:
-                container_volumes = [dict(hostvolume=s, containervolume=t) for s, t in group_by_2(parse_list(volumes))]
-
-            code, result = client.create_container(name, image, hostname=hostname,
-                                                   ports=[dict(type='tcp', privateport=8080, publicport=0)],
-                                                   volumes=container_volumes, env=env,
-                                                   command=cmd)
-            if httplib.OK != code:
-                raise Exception("create container failure, code {0}, message: {1}".format(code, result))
-
-        code, result = client.get_container(name, True)
-        if httplib.OK != code:
-            raise Exception("get container information failure, code {0}, message: {1}".format(code, result))
-
-        port = result.NetworkSettings.Ports["8080/tcp"][0].HostPort
-        etcdClient.write("/haproxy-discover/services/{0}/upstreams/{1}".format(projectName,name),"{0}:{1}".format(server,port))
-
-    upstreams = etcdClient.get("/haproxy-discover/services/{0}/upstreams".format(projectName))
-
-    for upstream in upstreams.children:
-        if isinstance(upstream.key,unicode):
-            index = upstream.key[-1:]
-            if index and int(index) > replicas:
-                etcdClient.delete(upstream.key)
-                client.delete_container("{0}.{1}".format(projectName,int(index)))
+    __deploy(projectName,name,image,replicas,volumes,env,cmd,hostname,[server])
 
 def docker_deploy(name, image, server=None, ports=None, volumes=None, env=None, cmd="", hostname="sirius"):
     """deploy a docker image on some server
@@ -125,7 +123,6 @@ def docker_deploy(name, image, server=None, ports=None, volumes=None, env=None, 
                                                command=cmd)
         if httplib.OK != code:
             raise Exception("create container failure, code {0}, message: {1}".format(code, result))
-
 
 def load_settings(src):
     full_path = os.path.join(src, 'matrix.json')
@@ -238,3 +235,40 @@ def docker_release(src='.'):
 
     cmd = 'docker rmi docker.neg/{0}'.format(release_image_name)
     local(cmd)
+
+def __deploy(projectName,name,image,replicas,volumes,env,cmd,hostname,servers,etcdPort=4001):
+    for server in servers:
+        client = factory.get(server)
+        etcdClient = Client(host=server,port=etcdPort)
+
+        for i in xrange(replicas):
+            name = "{0}.{1}".format(projectName,i + 1)
+            try:
+                client.update_image_2(name, image)
+            except ContainerNotFound:
+                container_volumes = []
+                if volumes:
+                    container_volumes = [dict(hostvolume=s, containervolume=t) for s, t in group_by_2(parse_list(volumes))]
+
+                code, result = client.create_container(name, image, hostname=hostname,
+                                                       ports=[dict(type='tcp', privateport=8080, publicport=0)],
+                                                       volumes=container_volumes, env=env,
+                                                       command=cmd)
+                if httplib.OK != code:
+                    raise Exception("create container failure, code {0}, message: {1}".format(code, result))
+
+            code, result = client.get_container(name, True)
+            if httplib.OK != code:
+                raise Exception("get container information failure, code {0}, message: {1}".format(code, result))
+
+            port = result.NetworkSettings.Ports["8080/tcp"][0].HostPort
+            etcdClient.write("/haproxy-discover/services/{0}/upstreams/{1}".format(projectName,name),"{0}:{1}".format(server,port))
+
+        upstreams = etcdClient.get("/haproxy-discover/services/{0}/upstreams".format(projectName))
+
+        for upstream in upstreams.children:
+            if isinstance(upstream.key,unicode):
+                index = upstream.key[-1:]
+                if index and int(index) > replicas:
+                    etcdClient.delete(upstream.key)
+                    client.delete_container("{0}.{1}".format(projectName,int(index)))

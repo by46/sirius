@@ -17,9 +17,27 @@ from sirius.docker import docker_deploy
 from sirius.docker import docker_image_name
 from sirius.docker import docker_release
 from sirius.docker import docker_dev_deploy
+from sirius.docker import docker_dfis_prd_deploy
 
 
 class DockerTestCase(unittest.TestCase):
+
+    def test_dfis_prd_deploy_docker_replicas_exception(self):
+        self.assertRaises(Exception, docker_dfis_prd_deploy, "", "", 0)
+
+
+    @patch.object(Docker,'update_image_2')
+    @patch.object(Docker,'get_container')
+    @patch.object(Client,'write')
+    @patch.object(Client,'get')
+    def test_dfis_prd_deploy_docker(self,get,write,get_container,update_image):
+        name = 'StubDemo'
+        image = 'docker.neg/demo'
+        get.return_value = EtcdResult(node=[])
+        get_container.return_value = 200,objson.loads('{"NetworkSettings":{"Ports":{"8080/tcp":[{"HostPort":"80"}]}}}')
+        docker_dfis_prd_deploy(name, image,replicas=1,env="ENV=gqc",servers=['scmesos02'])
+        write.assert_called_with('/haproxy-discover/services/StubDemo/upstreams/StubDemo.1', 'scmesos02:80')
+        update_image.assert_called_with('StubDemo.1', image)
 
     def test_dev_deploy_docker_replicas_exception(self):
         self.assertRaises(Exception, docker_dev_deploy, "", "", 0)

@@ -2,6 +2,10 @@
 
 ## [Unrelease]
 
+- add docker dfis prd deploy
+
+## [0.0.3]
+
 ### Added
 - add docker dev deploy
 
