@@ -19,7 +19,7 @@ from .utils import group_by_2
 from .utils import parse_list
 
 
-def docker_dfis_prd_deploy(name, image,replicas=5, volumes=None, env=None, cmd="", hostname="sirius",servers=None):
+def docker_dfis_prd_deploy(name, image,replicas=2, volumes=None, env=None, cmd="", hostname="sirius",servers=None):
     """deploy a docker image on dfis prd server
 
         will create container when if container is not exists, otherwise update container
