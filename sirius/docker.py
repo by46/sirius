@@ -24,7 +24,7 @@ def docker_dfis_prd_deploy(name, image,replicas=2, volumes=None, env=None, cmd="
 
         will create container when if container is not exists, otherwise update container
         Example:
-            sirius docker_dfis_prd_deploy:meerkat,meerkat:0.0.1,env="DEBUG\=1;PATH\=2"
+            sirius docker_dfis_prd_deploy:meerkat,meerkat:0.0.1,env="DEBUG\=1;PATH\=2",servers="s7dfis01;s7dfis02"
 
         :param name: container name
         :param image: image with tag, like: 'CentOS:7.0'
@@ -33,12 +33,14 @@ def docker_dfis_prd_deploy(name, image,replicas=2, volumes=None, env=None, cmd="
         :param env: var=10;DEBUG=true
         :param cmd: `class`:`str`
         :param hostname:
-        :param servers: dfis prd servers
+        :param servers: s7dfis01;s7dfis02
         :return:
     """
 
     if servers is None:
         servers = ["s7dfis06","s7dfis07","s7dfis08","s7dfis09","s7dfis10","s7dfis11","s7dfis12","s7dfis13"]
+    elif servers:
+        servers = parse_list(servers)
 
     projectName = name
     replicas = int(replicas)
