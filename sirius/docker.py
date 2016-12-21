@@ -38,7 +38,7 @@ def docker_dfis_prd_deploy(name, image,replicas=2, volumes=None, env=None, cmd="
     """
 
     if servers is None:
-        servers = ["s7dfis06","s7dfis07","s7dfis08","s7dfis09","s7dfis10","s7dfis11","s7dfis12","s7dfis13"]
+        servers = ["s7dfis10","s7dfis11","s7dfis12","s7dfis13"]
     elif servers:
         servers = parse_list(servers)
 
