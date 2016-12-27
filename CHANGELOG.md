@@ -1,6 +1,10 @@
 # Change log
 
-## [Unrelease]
+## [0.0.4]
+### Fixed
+- fix jsonschema requirements missing
+
+## [0.0.3]
 
 ### Added
 - add docker dev deploy

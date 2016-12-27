@@ -3,5 +3,6 @@ fabric
 requests
 GitPython
 SimpleKit
+Jsonschema
 python-etcd
 Mock
