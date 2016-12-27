@@ -8,5 +8,6 @@ from .docker import docker_dev_deploy
 from .docker import docker_image_name
 from .docker import docker_new_build_no
 from .docker import docker_release
+from .docker import docker_dfis_prd_deploy
 
 __version__ = "0.0.3"
