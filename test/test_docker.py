@@ -35,8 +35,8 @@ class DockerTestCase(unittest.TestCase):
         image = 'docker.neg/demo'
         get.return_value = EtcdResult(node=[])
         get_container.return_value = 200,objson.loads('{"NetworkSettings":{"Ports":{"8080/tcp":[{"HostPort":"80"}]}}}')
-        docker_dfis_prd_deploy(name, image,replicas=1,env="ENV=gqc",servers='scmesos02')
-        write.assert_called_with('/haproxy-discover/services/StubDemo/upstreams/StubDemo.1', 'scmesos02:80')
+        docker_dfis_prd_deploy(name, image,replicas=1,env="ENV=gqc",servers='10.16.78.82')
+        write.assert_called_with('/haproxy-discover/services/StubDemo/upstreams/StubDemo.1', '10.16.78.82:80')
         update_image.assert_called_with('StubDemo.1', image)
 
     def test_dev_deploy_docker_replicas_exception(self):
@@ -56,7 +56,7 @@ class DockerTestCase(unittest.TestCase):
         docker_dev_deploy(name, image)
         delete.assert_called_with('/upstreams/StubDemo.2')
         delete_container.assert_called_with('StubDemo.2')
-        write.assert_called_with('/haproxy-discover/services/StubDemo/upstreams/StubDemo.1', 'scmesos02:80')
+        write.assert_called_with('/haproxy-discover/services/StubDemo/upstreams/StubDemo.1', '10.16.78.82:80')
         update_image.assert_called_with('StubDemo.1', image)
 
     @patch.object(Docker,'update_image_2')
@@ -69,7 +69,7 @@ class DockerTestCase(unittest.TestCase):
         get.return_value = EtcdResult(node=[])
         get_container.return_value = 200,objson.loads('{"NetworkSettings":{"Ports":{"8080/tcp":[{"HostPort":"80"}]}}}')
         docker_dev_deploy(name, image)
-        write.assert_called_with('/haproxy-discover/services/StubDemo/upstreams/StubDemo.1', 'scmesos02:80')
+        write.assert_called_with('/haproxy-discover/services/StubDemo/upstreams/StubDemo.1', '10.16.78.82:80')
         update_image.assert_called_with('StubDemo.1', image)
 
     @patch.object(Docker, 'update_image_2')
@@ -108,7 +108,7 @@ class DockerTestCase(unittest.TestCase):
         get_container.return_value = 200, objson.loads('{"NetworkSettings":{"Ports":{"8080/tcp":[{"HostPort":"80"}]}}}')
         create_container.return_value = 200,None
         docker_dev_deploy(name, image,volumes=volumes)
-        write.assert_called_with('/haproxy-discover/services/StubDemo/upstreams/StubDemo.1', 'scmesos02:80')
+        write.assert_called_with('/haproxy-discover/services/StubDemo/upstreams/StubDemo.1', '10.16.78.82:80')
         update_image.assert_called_with('StubDemo.1', image)
         create_container.assert_called_with("StubDemo.1", image, hostname='sirius', command='',
                                             env=None,ports=[{'publicport':0,'type':'tcp','privateport':8080}],

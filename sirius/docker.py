@@ -19,7 +19,7 @@ from .utils import group_by_2
 from .utils import parse_list
 
 
-def docker_dfis_prd_deploy(name, image,replicas=2, volumes=None, env=None, cmd="", hostname="sirius",servers=None):
+def docker_dfis_prd_deploy(name, image,replicas=2, volumes=None, env=None, cmd="", hostname="sirius", servers=None):
     """deploy a docker image on dfis prd server
 
         will create container when if container is not exists, otherwise update container
@@ -52,7 +52,7 @@ def docker_dfis_prd_deploy(name, image,replicas=2, volumes=None, env=None, cmd="
 
     __deploy(projectName, name, image, replicas, volumes, env, cmd, hostname, servers,etcdPort=4007)
 
-def docker_dev_deploy(name, image,replicas=1, volumes=None, env=None, cmd="", hostname="sirius"):
+def docker_dev_deploy(name, image,replicas=1, volumes=None, env=None, cmd="", hostname="sirius", server=None):
     """deploy a docker image on dev server
 
         will create container when if container is not exists, otherwise update container
@@ -73,7 +73,9 @@ def docker_dev_deploy(name, image,replicas=1, volumes=None, env=None, cmd="", ho
     if replicas <= 0:
         raise Exception("replicas must more than 0")
 
-    server = "scmesos02"
+    if server is None:
+        server = '10.16.78.82'
+
     if env:
         env = parse_list(env)
         if "ENV=gqc" in env:
