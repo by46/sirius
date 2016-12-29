@@ -170,7 +170,7 @@ def docker_build_image(workspace=None, matrix_version=None):
 
     docker_prepare_build(workspace)
 
-    cmd = ('docker run --rm -v {workspace}:/home/matrix -v /usr/bin/docker:/usr/bin/docker '
+    cmd = ('docker run --rm -v {workspace}:/home/matrix '
            '-v /var/run/docker.sock:/var/run/docker.sock docker.neg/matrix:{matrix} /usr/local/bin/matrix.sh')
 
     local(cmd.format(workspace=workspace, matrix=matrix_version))
