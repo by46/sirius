@@ -5,10 +5,11 @@ from sirius import docker_image_name
 from sirius import docker_release
 from sirius import docker_dev_deploy
 from sirius import docker_dfis_prd_deploy
+from sirius import  get_config
 
-__all__ = ['usage', 'version','docker_dev_deploy','docker_dfis_prd_deploy',
+__all__ = ['usage', 'version', 'docker_dev_deploy', 'docker_dfis_prd_deploy',
            'docker_deploy', 'docker_image_name', 'docker_build_image',
-           'docker_release']
+           'docker_release', 'get_config']
 
 HELP_LINE = """
 Usage Example:
