@@ -4,6 +4,7 @@ import json
 import requests
 import os
 import base64
+import time
 
 def get_config(cloud_data, job_name, out_put=None):
     """get ci config from cloud_data
@@ -22,7 +23,7 @@ def get_config(cloud_data, job_name, out_put=None):
 
     cloud_data = base64.b64decode(cloud_data)
 
-    res = requests.get(cloud_data)
+    res = requests.get("{0}?dt={1}".format(cloud_data, time.time()))
 
     if res.status_code == 200:
         jobs = json.loads(res.content)['jobs']
