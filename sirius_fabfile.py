@@ -2,8 +2,9 @@ import sirius
 from sirius import docker_build_image
 from sirius import docker_deploy
 from sirius import docker_image_name
+from sirius import get_config
 
-__all__ = ['usage', 'version',
+__all__ = ['usage', 'version', 'get_config',
            'docker_deploy', 'docker_image_name', 'docker_build_image']
 
 HELP_LINE = """
