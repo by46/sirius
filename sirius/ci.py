@@ -6,11 +6,10 @@ import os
 import base64
 import time
 
-def get_config(cloud_data, job_name, out_put=None):
+def get_config(cloud_data, out_put=None):
     """get ci config from cloud_data
 
         :param cloud_data: cloud data url
-        :param job_name: job name, like: 'Analysis'
         :param out_put: ci file dir
         :return:
     """
@@ -28,6 +27,6 @@ def get_config(cloud_data, job_name, out_put=None):
     if res.status_code == 200:
         jobs = json.loads(res.content)['jobs']
         for job in jobs:
-            if job_name in job:
-                with open(os.path.join(out_put, job_name.lower() + ".sh"), mode='w') as f:
-                    f.write(job[job_name])
+            name = job.keys()[0]
+            with open(os.path.join(out_put, name.lower() + ".sh"), mode='w') as f:
+                f.write(job[name])
