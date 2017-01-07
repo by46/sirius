@@ -10,5 +10,6 @@ from .docker import docker_new_build_no
 from .docker import docker_release
 from .docker import docker_dfis_prd_deploy
 from .ci import get_config
+from .ci import update_config
 
 __version__ = "0.0.3"

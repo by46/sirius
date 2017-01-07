@@ -134,7 +134,7 @@ def load_settings(src):
         return json.load(f)
 
 
-def docker_image_name(src='.', release=False):
+def docker_image_name(src='.', release=False, group=None):
     """get building docker image name
     parse matrix.json, and get image:tag
 
@@ -143,11 +143,17 @@ def docker_image_name(src='.', release=False):
 
     :param src: the dir which container matrix.json, default is current work directory
     :param release: generate release image name
+    :param group: project group
     :return:
     """
     settings = load_settings(src)
     name = settings.get('name')
+
+    if group:
+        name = "{0}/{1}".format(group, name)
+
     tag = settings.get('release_tag', 'release1') if release else settings.get('tag', 'build1')
+
     image_name = '{name}:{tag}'.format(name=name, tag=tag)
     print(image_name)
     return image_name
