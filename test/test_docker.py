@@ -203,7 +203,7 @@ class DockerTestCase(unittest.TestCase):
         docker_build_image(workspace='.')
         local.assert_called_with('docker run --rm -v .:/home/matrix '
                                  '-v /var/run/docker.sock:/var/run/docker.sock '
-                                 'docker.neg/matrix:0.0.4 /usr/local/bin/matrix.sh')
+                                 'docker.neg/matrix:0.0.5 /usr/local/bin/matrix.sh')
         isfile.assert_called_with(os.path.join('.', 'matrix.json'))
         mock_print_function.assert_called_with(1)
 

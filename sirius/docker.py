@@ -172,7 +172,7 @@ def docker_build_image(workspace=None, matrix_version=None):
         workspace = os.environ.get('WORKSPACE', '.')
 
     if not matrix_version:
-        matrix_version = '0.0.4'
+        matrix_version = '0.0.5'
 
     docker_prepare_build(workspace)
 
