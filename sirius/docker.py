@@ -128,6 +128,7 @@ def docker_deploy(name, image, server=None, ports=None, volumes=None, env=None, 
         if httplib.OK != code:
             raise Exception("create container failure, code {0}, message: {1}".format(code, result))
 
+
 def load_settings(src):
     full_path = os.path.join(src, 'matrix.json')
     with open(full_path, 'rb') as f:
