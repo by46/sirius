@@ -26,11 +26,13 @@ def get_config(cloud_data, out_put=None):
     res = requests.get("{0}?dt={1}".format(cloud_data, time.time()))
 
     if res.status_code == 200:
-        jobs = json.loads(res.content)['jobs_detail']
-        for job in jobs:
-            name = job.keys()[0]
-            with open(os.path.join(out_put, name.lower() + ".sh"), mode='w') as f:
-                f.write(job[name])
+        metadata = json.loads(res.content)
+        if 'jobs_detail' in metadata:
+            jobs = json.loads(res.content)['jobs_detail']
+            for job in jobs:
+                name = job.keys()[0]
+                with open(os.path.join(out_put, name.lower() + ".sh"), mode='w') as f:
+                    f.write(job[name])
 
 
 def update_config(cloud_data, docker_release_image=None):
