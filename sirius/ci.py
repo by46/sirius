@@ -28,7 +28,7 @@ def get_config(cloud_data, out_put=None):
     if res.status_code == 200:
         metadata = json.loads(res.content)
         if 'jobs_detail' in metadata:
-            jobs = json.loads(res.content)['jobs_detail']
+            jobs = metadata['jobs_detail']
             for job in jobs:
                 name = job.keys()[0]
                 with open(os.path.join(out_put, name.lower() + ".sh"), mode='w') as f:
