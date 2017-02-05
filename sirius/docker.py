@@ -230,8 +230,7 @@ def docker_prepare_build(workspace=".", group=None):
         obj = json.load(f)
         project_slug = obj['name']
         if group and not project_slug.startswith("{0}/".format(group)):
-            project_slug = "{0}/{1}".format(group, project_slug)
-            obj['name'] = project_slug
+            obj['name'] = "{0}/{1}".format(group, project_slug)
 
         build_no = docker_new_build_no(project_slug)
         tag = obj['tag']
