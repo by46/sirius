@@ -5,3 +5,4 @@ GitPython
 SimpleKit
 python-etcd
 Jsonschema
+etcd
