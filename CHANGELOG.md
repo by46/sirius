@@ -3,6 +3,9 @@
 ## [0.0.4]
 ### Fixed
 - fix jsonschema requirements missing
+### Added
+- add environment key for matrix version
+- add default matrix version
 
 ## [0.0.3]
 
