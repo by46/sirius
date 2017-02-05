@@ -51,7 +51,7 @@ def docker_dfis_prd_deploy(name, image, replicas=2, volumes=None, env=None, cmd=
     if env:
         env = parse_list(env)
 
-    __deploy(project_name, name, image, replicas, volumes, env, cmd, hostname, servers, etcdPort=4007)
+    __deploy(project_name, image, replicas, volumes, env, cmd, hostname, servers, etcd_port=4007)
 
 
 def docker_dev_deploy(name, image, replicas=1, volumes=None, env=None, cmd="", hostname="sirius", server=None):
@@ -84,7 +84,7 @@ def docker_dev_deploy(name, image, replicas=1, volumes=None, env=None, cmd="", h
         if "ENV=gqc" in env:
             server = "10.1.24.134"
 
-    __deploy(project_name, name, image, replicas, volumes, env, cmd, hostname, [server])
+    __deploy(project_name, image, replicas, volumes, env, cmd, hostname, [server])
 
 
 def docker_deploy(name, image, server=None, ports=None, volumes=None, env=None, cmd="", hostname="sirius"):

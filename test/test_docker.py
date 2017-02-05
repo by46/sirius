@@ -67,7 +67,7 @@ class DockerTestCase(unittest.TestCase):
         name = 'StubDemo'
         image = 'docker.neg/demo'
         get.return_value = EtcdResult(node=[])
-        get_container.return_value = 200,objson.loads('{"NetworkSettings":{"Ports":{"8080/tcp":[{"HostPort":"80"}]}}}')
+        get_container.return_value = 200, objson.loads('{"NetworkSettings":{"Ports":{"8080/tcp":[{"HostPort":"80"}]}}}')
         docker_dev_deploy(name, image)
         write.assert_called_with('/haproxy-discover/services/StubDemo/upstreams/StubDemo.1', '10.16.78.82:80')
         update_image.assert_called_with('StubDemo.1', image)
