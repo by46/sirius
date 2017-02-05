@@ -12,4 +12,4 @@ from .docker import docker_dfis_prd_deploy
 from .ci import get_config
 from .ci import update_config
 
-__version__ = "0.0.7"
+__version__ = "0.0.8"

@@ -154,7 +154,7 @@ def docker_image_name(src='.', release=False, group=None):
     settings = load_settings(src)
     name = settings.get('name')
 
-    if group:
+    if group and not name.startswith("{0}/".format(group)):
         name = "{0}/{1}".format(group, name)
 
     tag = settings.get('release_tag', 'release1') if release else settings.get('tag', 'build1')
