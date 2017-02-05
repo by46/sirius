@@ -164,13 +164,14 @@ def docker_image_name(src='.', release=False, group=None):
     return image_name
 
 
-def docker_build_image(workspace=None, matrix_version=None):
+def docker_build_image(workspace=None, matrix_version=None, group=None):
     """build a new image
     Example:
       sirius docker_build_image[:workspace]
 
     :param workspace: the source code directory, default retrieve workspace from WORKSPACE ENV variable.
     :param matrix_version: the matrix version, default is the new tag
+    :param group
     :return:
     """
     if not workspace:
@@ -180,7 +181,7 @@ def docker_build_image(workspace=None, matrix_version=None):
         matrix_version = os.environ.get('SIRIUS_MATRIX_VERSION')
         if not matrix_version:
             matrix_version = DEFAULT_MATRIX_VERSION
-    docker_prepare_build(workspace)
+    docker_prepare_build(workspace, group)
 
     cmd = ('docker run --rm -v {workspace}:/home/matrix '
            '-v /var/run/docker.sock:/var/run/docker.sock docker.neg/matrix:{matrix} /usr/local/bin/matrix.sh')
@@ -206,12 +207,13 @@ def docker_new_build_no(project_slug=None):
     return obj['build_id']
 
 
-def docker_prepare_build(workspace="."):
+def docker_prepare_build(workspace=".", group=None):
     """prepare build docker image
 
     generate new docker image tag, and rewrite the matrix.json
 
     :param workspace: the matrix.json location, default './matrix.json'
+    :param group
     :return:
     """
     workspace = workspace or '.'
@@ -227,6 +229,10 @@ def docker_prepare_build(workspace="."):
     with open(matrix_json, 'rb') as f:
         obj = json.load(f)
         project_slug = obj['name']
+        if group and not project_slug.startswith("{0}/".format(group)):
+            project_slug = "{0}/{1}".format(group, project_slug)
+            obj['name'] = project_slug
+
         build_no = docker_new_build_no(project_slug)
         tag = obj['tag']
         version = LooseVersion(tag)
