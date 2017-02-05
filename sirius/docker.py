@@ -261,38 +261,38 @@ def docker_release(src='.'):
 def __deploy(project_name, image, replicas, volumes, env, cmd, hostname, servers, etcd_port=4001):
     for server in servers:
         client = factory.get(server)
-        etcdClient = Client(host=server, port=etcd_port)
+        etcd_client = Client(host=server, port=etcd_port)
 
         for i in xrange(replicas):
             name = "{0}.{1}".format(project_name, i + 1)
-            try:
-                client.update_image_2(name, image)
-            except ContainerNotFound:
-                container_volumes = []
-                if volumes:
-                    container_volumes = [dict(hostvolume=s, containervolume=t) for s, t in
-                                         group_by_2(parse_list(volumes))]
 
-                code, result = client.create_container(name, image, hostname=hostname,
-                                                       ports=[dict(type='tcp', privateport=8080, publicport=0)],
-                                                       volumes=container_volumes, env=env,
-                                                       command=cmd)
-                if httplib.OK != code:
-                    raise Exception("create container failure, code {0}, message: {1}".format(code, result))
+            client.delete_container(name)
+
+            container_volumes = []
+            if volumes:
+                container_volumes = [dict(hostvolume=s, containervolume=t) for s, t in group_by_2(parse_list(volumes))]
+
+            code, result = client.create_container(name, image, hostname=hostname,
+                                                   ports=[dict(type='tcp', privateport=8080, publicport=0)],
+                                                   volumes=container_volumes, env=env,
+                                                   command=cmd)
+
+            if httplib.OK != code:
+                raise Exception("create container failure, code {0}, message: {1}".format(code, result))
 
             code, result = client.get_container(name, True)
             if httplib.OK != code:
                 raise Exception("get container information failure, code {0}, message: {1}".format(code, result))
 
             port = result.NetworkSettings.Ports["8080/tcp"][0].HostPort
-            etcdClient.write("/haproxy-discover/services/{0}/upstreams/{1}".format(project_name, name),
-                             "{0}:{1}".format(server, port))
+            etcd_client.write("/haproxy-discover/services/{0}/upstreams/{1}".format(project_name, name),
+                              "{0}:{1}".format(server, port))
 
-        upstreams = etcdClient.get("/haproxy-discover/services/{0}/upstreams".format(project_name))
+        upstreams = etcd_client.get("/haproxy-discover/services/{0}/upstreams".format(project_name))
 
         for upstream in upstreams.children:
             if isinstance(upstream.key, unicode):
                 index = upstream.key[-1:]
                 if index and int(index) > replicas:
-                    etcdClient.delete(upstream.key)
+                    etcd_client.delete(upstream.key)
                     client.delete_container("{0}.{1}".format(project_name, int(index)))
