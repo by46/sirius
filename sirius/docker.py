@@ -176,14 +176,9 @@ def docker_build_image(workspace=None, matrix_version=None):
         workspace = os.environ.get('WORKSPACE', '.')
 
     if not matrix_version:
-<<<<<<< HEAD
         matrix_version = os.environ.get('SIRIUS_MATRIX_VERSION')
         if not matrix_version:
             matrix_version = DEFAULT_MATRIX_VERSION
-=======
-        matrix_version = '0.0.5'
->>>>>>> 989a2252c7f4e35b9b2c7e90db7393198cb8365e
-
     docker_prepare_build(workspace)
 
     cmd = ('docker run --rm -v {workspace}:/home/matrix '
