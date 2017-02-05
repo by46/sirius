@@ -4,6 +4,5 @@ requests
 GitPython
 SimpleKit
 Jsonschema
-etcd
 python-etcd
 Mock

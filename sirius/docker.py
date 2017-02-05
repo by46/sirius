@@ -6,9 +6,9 @@ import os
 from distutils.version import LooseVersion
 from itertools import chain
 from itertools import imap
+from etcd import Client
 
 import requests
-from etcd import Client
 from fabric.api import local
 from git import Repo
 from simplekit import ContainerNotFound
@@ -43,7 +43,7 @@ def docker_dfis_prd_deploy(name, image, replicas=2, volumes=None, env=None, cmd=
     elif servers:
         servers = parse_list(servers)
 
-    projectName = name
+    project_name = name
     replicas = int(replicas)
     if replicas <= 0:
         raise Exception("replicas must more than 0")
@@ -51,7 +51,7 @@ def docker_dfis_prd_deploy(name, image, replicas=2, volumes=None, env=None, cmd=
     if env:
         env = parse_list(env)
 
-    __deploy(projectName, name, image, replicas, volumes, env, cmd, hostname, servers, etcdPort=4007)
+    __deploy(project_name, name, image, replicas, volumes, env, cmd, hostname, servers, etcdPort=4007)
 
 
 def docker_dev_deploy(name, image, replicas=1, volumes=None, env=None, cmd="", hostname="sirius", server=None):
@@ -68,9 +68,10 @@ def docker_dev_deploy(name, image, replicas=1, volumes=None, env=None, cmd="", h
         :param env: var=10;DEBUG=true
         :param cmd: `class`:`str`
         :param hostname:
+        :param server:
         :return:
     """
-    projectName = name
+    project_name = name
     replicas = int(replicas)
     if replicas <= 0:
         raise Exception("replicas must more than 0")
@@ -83,7 +84,7 @@ def docker_dev_deploy(name, image, replicas=1, volumes=None, env=None, cmd="", h
         if "ENV=gqc" in env:
             server = "10.1.24.134"
 
-    __deploy(projectName, name, image, replicas, volumes, env, cmd, hostname, [server])
+    __deploy(project_name, name, image, replicas, volumes, env, cmd, hostname, [server])
 
 
 def docker_deploy(name, image, server=None, ports=None, volumes=None, env=None, cmd="", hostname="sirius"):
@@ -252,13 +253,13 @@ def docker_release(src='.'):
     local(cmd)
 
 
-def __deploy(projectName, name, image, replicas, volumes, env, cmd, hostname, servers, etcdPort=4001):
+def __deploy(project_name, image, replicas, volumes, env, cmd, hostname, servers, etcd_port=4001):
     for server in servers:
         client = factory.get(server)
-        etcdClient = Client(host=server, port=etcdPort)
+        etcdClient = Client(host=server, port=etcd_port)
 
         for i in xrange(replicas):
-            name = "{0}.{1}".format(projectName, i + 1)
+            name = "{0}.{1}".format(project_name, i + 1)
             try:
                 client.update_image_2(name, image)
             except ContainerNotFound:
@@ -279,14 +280,14 @@ def __deploy(projectName, name, image, replicas, volumes, env, cmd, hostname, se
                 raise Exception("get container information failure, code {0}, message: {1}".format(code, result))
 
             port = result.NetworkSettings.Ports["8080/tcp"][0].HostPort
-            etcdClient.write("/haproxy-discover/services/{0}/upstreams/{1}".format(projectName, name),
+            etcdClient.write("/haproxy-discover/services/{0}/upstreams/{1}".format(project_name, name),
                              "{0}:{1}".format(server, port))
 
-        upstreams = etcdClient.get("/haproxy-discover/services/{0}/upstreams".format(projectName))
+        upstreams = etcdClient.get("/haproxy-discover/services/{0}/upstreams".format(project_name))
 
         for upstream in upstreams.children:
             if isinstance(upstream.key, unicode):
                 index = upstream.key[-1:]
                 if index and int(index) > replicas:
                     etcdClient.delete(upstream.key)
-                    client.delete_container("{0}.{1}".format(projectName, int(index)))
+                    client.delete_container("{0}.{1}".format(project_name, int(index)))
