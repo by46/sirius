@@ -9,7 +9,8 @@ from .docker import docker_image_name
 from .docker import docker_new_build_no
 from .docker import docker_release
 from .docker import docker_dfis_prd_deploy
+from .docker import docker_prepare_build
 from .ci import get_config
 from .ci import update_config
 
-__version__ = "0.0.10"
+__version__ = "0.0.11"
