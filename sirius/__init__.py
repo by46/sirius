@@ -13,4 +13,4 @@ from .docker import docker_prepare_build
 from .ci import get_config
 from .ci import update_config
 
-__version__ = "0.0.11"
+__version__ = "0.0.12"
