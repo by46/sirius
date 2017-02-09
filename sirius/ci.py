@@ -33,6 +33,10 @@ def get_config(cloud_data, out_put=None):
                 name = job.keys()[0]
                 with open(os.path.join(out_put, name.lower() + ".sh"), mode='w') as f:
                     f.write(job[name])
+        if 'dockerfile' in metadata:
+            dockerfile = metadata['dockerfile']
+            with open("Dockerfile", mode='w') as f:
+                f.write(dockerfile)
 
 
 def update_config(cloud_data, docker_release_image=None):
