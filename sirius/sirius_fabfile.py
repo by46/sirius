@@ -8,9 +8,10 @@ from sirius import docker_dfis_prd_deploy
 from sirius import docker_prepare_build
 from sirius import get_config
 from sirius import update_config
+from sirius import iis_deploy
 
 __all__ = ['usage', 'version', 'docker_dev_deploy', 'docker_dfis_prd_deploy', 'docker_prepare_build',
-           'docker_deploy', 'docker_image_name', 'docker_build_image',
+           'docker_deploy', 'docker_image_name', 'docker_build_image', 'iis_deploy',
            'docker_release', 'get_config', 'update_config']
 
 HELP_LINE = """
