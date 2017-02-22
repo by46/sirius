@@ -2,7 +2,7 @@ from etcd import Client
 
 import subprocess
 
-ADD_APP = 'appcmd add app /site.name:"DAE" /path:/{0} /physicalPath:"{1}\{0}"'
+ADD_APP = 'appcmd add app /site.name:"DAE" /path:/{0} /physicalPath:"{1}"'
 UPDATE_APP = 'appcmd set app /app.name:"DAE/{0}" /applicationPool:"ASP.NET v4.0 Classic"'
 
 
