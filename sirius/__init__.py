@@ -14,4 +14,4 @@ from .iis import iis_deploy
 from .ci import get_config
 from .ci import update_config
 
-__version__ = "0.0.14"
+__version__ = "0.0.15"
